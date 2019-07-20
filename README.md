@@ -1,2 +1,25 @@
 # EMsounder_FM_1D
 A forward modeling script for 1D electromagnetic (radar) sounders
+
+Quick use guide:
+
+1). Open the example_model.txt file. This file shows an example subsurface
+layered model to propagate your radar waves through. To run this example model,
+you also need a radar source pulse. With the example model file, this repo also contains two csv
+files that contain the Mars reconnaissance orbiter's SHARAD instrument's radar
+pulse and it's corresponding matched filter for range compression. The example
+model file references these files and uses them as the source pulse to forward model. 
+
+2). To run the example model, run the following command: python
+radar_FM1D_refMethod.py example_model.txt
+
+3). The script will output the data as a csv file, and also a figure with the
+reflected power that would be recorded back at the source. 
+
+4). Create your own model file with the same format as the example file and
+model any set of 1D layers you can think of!
+
+
+Stay tuned! More detailed instructions to come soon.  
+
+
