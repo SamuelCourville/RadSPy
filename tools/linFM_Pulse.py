@@ -1,0 +1,77 @@
+######################################################################
+import numpy as np
+import matplotlib.pyplot as plt
+import csv
+import sys
+
+
+###############################################################################
+###############################################################################
+#                       Pulse Parameters - Modify these
+###############################################################################
+###############################################################################
+
+fileString = "LRS_ideal"
+
+## Source Pulse Parameters
+f = 5*10**6 #Hz
+bw = 2*10**6
+pl = 200*10**-6
+A = 1
+tc = -f/(bw/pl)
+
+# Discretization parameters
+fs = 4*f+bw; # nyquist sampling
+nt = round(pl*fs)
+maxt = pl/2
+mint = -pl/2
+t = np.linspace(mint,maxt,nt)
+dt = t[2]-t[1]
+
+
+
+###############################################################################
+###############################################################################
+#                       Functions - Do not modify these
+###############################################################################
+###############################################################################
+
+# Create Box function
+def rect(t,w,A):
+    nt = len(t)
+    g = np.zeros((nt))
+    for i in range(0,nt):
+        if t[i]>-w and t[i] < w:
+            g[i] = A
+        else:
+            g[i] = 0
+    return g
+
+# Create Linear FM pulse
+def linFM_Pulse(bw,pl,t,A,tc):
+    K = bw/pl
+    g = rect(t,pl/2.0,A)*np.exp(1j*(np.pi*K*(t-tc)**2))
+    return(g)
+
+def linFM_Pulse_filter(bw,pl,t,A,tc):
+    K = bw/pl
+    g = rect(t,pl/2.0,A)*np.exp(-1j*(np.pi*K*(t+tc)**2))
+    return(g)
+
+def main():
+    s = linFM_Pulse(bw,pl,t,A,tc)
+    h = linFM_Pulse_filter(bw,pl,t,A,tc)
+
+    H = np.fft.fftshift(np.fft.fft(h))/(nt)
+    Hfreq = np.fft.fftshift(np.fft.fftfreq(nt,dt))
+    
+    plt.plot(Hfreq,H)
+
+    a = np.transpose(np.asarray([t, s]))
+    np.savetxt(fileString + "_sourcePulse.csv", a, delimiter=",")
+
+    a = np.transpose(np.asarray([t, Hfreq, H]))
+    np.savetxt(fileString + "_matchedFilter.csv", a, delimiter=",")
+    return
+
+main()
