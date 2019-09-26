@@ -3,8 +3,15 @@
 # Import Libraries
 #
 import os, sys, glob, struct, csv
-from html.parser import HTMLParser
-import urllib.request
+
+import sys
+if sys.version_info[0] < 3:
+	from HTMLParser import HTMLParser
+	import urllib as url
+else:
+	from html.parser import HTMLParser
+	import urllib.request as url
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -21,9 +28,9 @@ def downloadFPBdata(obsNum):
   rgramOut = 'data/'+p[1:]
   geomOut = 'data/'+geomp[1:]
   print('Downloading FPB From PDS')
-  urllib.request.urlretrieve(rgramURL, rgramOut)
+  url.urlretrieve(rgramURL, rgramOut)
   print('Downloading FPB GEOM From PDS')
-  urllib.request.urlretrieve(geomURL, geomOut)
+  url.urlretrieve(geomURL, geomOut)
   return rgramOut, geomOut
 
 
@@ -164,7 +171,8 @@ python PulseExtraction.py {Observation Number} {frame number)\n\n """
   #
   # Format Data for easy CSV writing
   #
-  with open('data/'+outFile, 'w', newline='') as f:
+  #with open('data/'+outFile, 'w', newline='') as f:
+  with open('data/'+outFile, 'w') as f:
     writer = csv.writer(f)
     for ii in range(len(time)):
       temp = fpbframe[ii]

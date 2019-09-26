@@ -2,17 +2,17 @@
 # Observation height/altitude above ground (meters)
 300e3
 # Approximate noise floor value in dB (ignored if less than -100dB)
--101
+-35
 # Number of layers, n
-3
+4
 # Layer thicknesses (put n-1 values, last layer assumed to be infinite)
-50.0 50.0
+4.0 47.0 27.0
 # Real relative dielectric permittivity
-8.88 1.0 8.88
+5.0 3.5 6.0 10.0 
 # Do you want to use conductivity (1) or loss tangent (0)?
 0
 # Loss tangent for each layer, or conductivity
-0.0019 0.0 0.0019
+0.0039 0.0 0.0019 0.0019
 # directory/file of time domain source pulse
 Sharad_Ideal_sourcePulse.csv
 # directory/file of frequency domain matched filter (or "none")
