@@ -1,0 +1,11 @@
+# ignore csvs
+*.csv
+
+# ignore tabs
+*.tab
+
+# ignore imgs
+*.img
+
+# ignore pngs
+*.png
