@@ -11,6 +11,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+plt.rcParams.update({'font.size': 22})
 import csv
 import sys
 
@@ -26,6 +27,7 @@ H = 0
 dB_noise = 0
 h = np.array([0])
 eps = np.array([1.0])
+#eps = np.array([3.6e11])
 lossTangent = np.array([0.0])
 nl=0
 useConductivity = 0
@@ -150,7 +152,7 @@ def loadTruePulse(fileName):
         E = []
         for row in readCSV:
             t.append(np.real(complex(row[0])))
-            E.append(complex(row[1]))
+            E.append(complex(row[1].replace('+-', '-', 1)))
     return t,E    
     
 def loadMatchFilter(fileName):
@@ -162,7 +164,7 @@ def loadMatchFilter(fileName):
         for row in readCSV:
             t.append(np.real(complex(row[0])))
             f.append(np.real(complex(row[1])))
-            E.append(complex(row[2]))
+            E.append(complex(row[2].replace('+-', '-', 1)))
     return t,f,E
 
 ###############################################################################
@@ -185,6 +187,7 @@ def interpFreq(t2,t1,Fnew):
     
 def dB(x):
     return 20*np.log10(x)
+    #return 20*np.log10(np.abs(x))
     
 ###############################################################################
 #                       Main script
@@ -202,7 +205,6 @@ def main(args):
     modelFile = modelFile[0:-4]
     
     t,source = loadTruePulse(pulseFile)
-    
 
     n=len(t)
     d = t[1]-t[0]
@@ -251,7 +253,7 @@ def main(args):
     a = np.transpose(np.asarray([np.array(t)+addTime, finalData, result]))
     np.savetxt(modelFile + "_output_data.csv", a, delimiter=",")
 
-    
+   
     if plotResult:
         plotDataModel(addTime,np.array(t),result,modelFile)
     
@@ -263,25 +265,34 @@ def main(args):
 ###############################################################################
 def plotDataModel(addTime,finalT,sout,modelFile):
     dB_limit = -50
-    endT = 8
-    
+    #endT = 0.10e3
+    endT = 1
+
     fig=plt.figure(figsize=(9, 8), dpi= 80, facecolor='w', edgecolor='k')
+
+    axFont = 28
+    titFont = 32
 
     plt.subplot(1,2,1)
     plt.plot(dB(sout)-np.max(dB(sout)),(finalT+addTime)*10**6,linewidth=3)
+    #plt.plot(dB(sout)-np.max(dB(sout)),(finalT+addTime)*10**3,linewidth=3)
     plt.grid()
     axes = plt.gca()
     axes.set_ylim([0+addTime*10**6,endT+addTime*10**6])
     axes.set_xlim([dB_limit,0])
-    axes.set_ylabel('Time ($\mu$s)',fontsize=16)
-    axes.set_xlabel('dB',fontsize=16)
-    axes.set_title('Radar return',fontsize=20)
+    axes.set_ylabel('Time ($\mu$s)',fontsize=axFont)
+    #axes.set_ylabel('Time (ms)',fontsize=axFont)
+    axes.set_xlabel('dB',fontsize=axFont)
+    axes.xaxis.set_label_position('top') 
+    axes.xaxis.tick_top()    
+    #axes.set_title('Radar return',fontsize=titFont)
     axes.invert_yaxis()
 
 
+    #eps = np.array([2.5,2.5,2.6,3.0,5.5])*eps0
     layers = np.append(np.cumsum(h),[0])
     nz = 200
-    z = np.linspace(0,np.max(layers)+20,nz)
+    z = np.linspace(0,np.max(layers)+10,nz)
     currInd = -1
     epsz = np.zeros((nz))
     for i in range(0,nz):
@@ -297,13 +308,16 @@ def plotDataModel(addTime,finalT,sout,modelFile):
     plt.subplot(1,2,2)
     plt.plot(epsz,z,'r',linewidth=4.0)
     axes = plt.gca()
-    axes.set_ylabel('Depth (m)',fontsize=16)
-    axes.set_xlabel('$\epsilon_r$',fontsize=16)
+    axes.set_ylabel('Depth (m)',fontsize=axFont)
+    axes.set_xlabel('$\epsilon_r$',fontsize=axFont)
+    #axes.set_xlabel('$v_p$ (km/s)',fontsize=axFont)
     axes.set_ylim([-0,np.max(z)])
     axes.set_xlim([0,np.max(epsz)+1])
-    axes.set_title('Permitivity Model',fontsize=20)
+    #axes.set_title('Permitivity Model',fontsize=titFont)
     axes.invert_yaxis()
-
+    axes.xaxis.set_label_position('top') 
+    axes.xaxis.tick_top()
+    plt.show()
     plt.savefig(modelFile + '_output_figure.png')
 
     b = np.transpose(np.asarray([ z,epsz]))

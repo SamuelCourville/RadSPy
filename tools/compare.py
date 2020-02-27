@@ -60,28 +60,58 @@ def compare(d1,d2,t1,t2,d,m):
 	p1 = dB(np.abs(d1)/np.max(np.abs(d1)))
 	p2 = d2 #dB(np.abs(d2)/np.max(np.abs(d2)))
 
-	plt.subplot(1,2,1)
-	plt.plot(p1,t1)
-	plt.plot(p2,t2*10**6)
-	axes=plt.gca()
-	axes.set_ylim([-endT/16,endT])
-	axes.set_xlim([np.min(p1),np.max(p1)])
-	axes.set_ylabel('Time ($\mu$s)',fontsize=16)
-	axes.set_xlabel('dB',fontsize=16)
-	axes.set_title('Radar return',fontsize=20)
-	axes.invert_yaxis()
+	f = plt.figure(figsize=(7,10))
+	ax1 = f.add_subplot(1,2,1)
+	ax1.plot(p1,t1,'r',linewidth=3)
+	ax1.plot(p2,t2*10**6,'k',linewidth=3)
+	ax1.set_ylim([-endT/16,endT])
+	ax1.set_xlim([np.min(p1),np.max(p1)])
+	ax1.set_ylabel('$t$ ($\mu$s)',fontsize=16)
+	ax1.set_xlabel('Normalized Power (dB)',fontsize=16)
+	ax1.set_title('Data',fontsize=20)
+	ax1.invert_yaxis()
+	ax1.legend(['True','Synthetic'])
 
-	plt.subplot(1,2,2)
-	plt.plot(m,d)
-	axes=plt.gca()
-	axes.set_ylim([0,np.max(d)])
-	axes.set_xlim([0,np.max(m)+1])
-	axes.set_ylabel('depth (m)',fontsize=16)
-	axes.set_xlabel('$\epsilon_r$',fontsize=16)
-	axes.set_title('Model',fontsize=20)
-	axes.invert_yaxis()
+
+	layerPlot=1
+	if layerPlot:
+		layers = np.array([0.55, 0.45, 0.35, 0.36, 0.47, 0.40, 0.40, 0.75, 0.45, 0.55, 1.0, 0.5, 0.35, 0.35, 0.3, 0.3, 0.25, 0.30, 0.5, 0.45, 0.5, 0.59, 0.45, 0.45, 0.9, 0.8])
+		counter = -1
+		last = 0
+		toPlot = np.zeros(len(d))
+		for i in range(0,len(d)):
+			if np.real(m[i])-3.1 < 0.001:
+				toPlot[i] = 0
+				last = 0
+			else:
+				if last == 0:
+					counter = counter+1
+				toPlot[i] = layers[counter]
+				last = 1
+		ax2 = f.add_subplot(1,2,2)
+                ax2.step(toPlot,d,'k',linewidth=3)
+                ax2.set_ylim([-75,np.max(d)+20])
+                ax2.set_xlim([0,1])
+                ax2.set_ylabel('$z$ (m)',fontsize=16)
+                ax2.set_xlabel('dust thickness $(m)$',fontsize=16)
+                ax2.set_title('Model',fontsize=20)
+                ax2.invert_yaxis()
+	else:
+		ax2 = f.add_subplot(1,2,2)
+		ax2.step(m,d,'k',linewidth=3)
+		ax2.set_ylim([0,np.max(d)])
+		ax2.set_xlim([0,np.max(m)+1])
+		ax2.set_ylabel('$z$ (m)',fontsize=16)
+		ax2.set_xlabel('$\epsilon_r$',fontsize=16)
+		ax2.set_title('Model',fontsize=20)
+		ax2.invert_yaxis()
 	
-	#plt.show()
+	bbox=plt.gca().get_position()
+	offset=-.06
+	plt.gca().set_position([bbox.x0-offset, bbox.y0, bbox.x1-bbox.x0, bbox.y1 - bbox.y0])
+
+
+	#f.show()
 	plt.savefig(modelFile+'_w_data.png')
 
 	return l2Norm 

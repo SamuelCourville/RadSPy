@@ -148,7 +148,10 @@ python PulseExtraction.py {Observation Number} {frame number)\n\n """
   #
   # Print summary before processing
   #
-  outFile = 'FPB_' + str(ObsNum) + '_' + str(lat) + '_' + str(lon) + '.csv'
+  if not idx:
+    outFile = 'FPB_' + str(ObsNum) + '_' + str(lat) + '_' + str(lon) + '.csv'
+  else:
+    outFile = 'FPB_' + str(ObsNum) + '_' + str(fpbframe) + '.csv'
   print('----- Summary ------')
   print('Observation File:\t{}'.format(fpbFile))
   print('Orbit File: \t{}'.format(geomFile))
@@ -166,6 +169,8 @@ python PulseExtraction.py {Observation Number} {frame number)\n\n """
     exit()
   fpbframe = fpbData[:, fpbframe]
   pwr = fpbframe
+  #2440
+  #2350
   idx_mx = np.where(pwr == pwr.max())[0]
   time = np.arange(0, len(pwr)) * sr - idx_mx * sr
   #

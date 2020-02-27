@@ -1,8 +1,12 @@
 download_data:
-	Python ../tools/FPBPulseExtraction.py 00719502000 943
+	Python ../tools/FPBPulseExtraction.py 00719502000 $(trace)
 
 run_model:
-	Python ../radar_FM1D_refMethod.py models/943/model.txt
+	Python ../radar_FM1D_refMethod.py models/$(trace)/model.txt
+run_model2:
+	Python ../radar_FM1D_refMethod.py models/$(trace)/model2.txt
 
 compare:
-	Python ../tools/compare.py models/943/model data/FPB_719502000_40.434_24.4157
+	Python ../tools/compare.py models/$(trace)/model data/FPB_719502000_$(trace)
+compare2:
+	Python ../tools/compare.py models/$(trace)/model2 data/FPB_719502000_$(trace)

@@ -11,13 +11,13 @@ import sys
 ###############################################################################
 ###############################################################################
 
-fileString = "LRS_ideal"
+fileString = "seismicPulse_ideal"
 
 ## Source Pulse Parameters
-f = 5*10**6 #Hz
-bw = 2*10**6
-pl = 200*10**-6
-A = 1
+f = 200 #Hz
+bw = 380
+pl = 1.0
+A = 1.0
 tc = -f/(bw/pl)
 
 # Discretization parameters
@@ -59,6 +59,7 @@ def linFM_Pulse_filter(bw,pl,t,A,tc):
     return(g)
 
 def main():
+    nt = len(t)
     s = linFM_Pulse(bw,pl,t,A,tc)
     h = linFM_Pulse_filter(bw,pl,t,A,tc)
 
