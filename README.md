@@ -1,7 +1,14 @@
 # EMsounder_FM_1D
 A forward modeling script for 1D electromagnetic (radar) sounders
 
-Quick use guide:
+## Quick use guide:
+
+## Option A). Import radar simulator python class into code. 
+
+Simply open the jupyter notebook file demo.ipnyb and follow instructions.
+
+
+## Option B). Run radar simulator python script through terminal 
 
 1). Open the example_model.txt file. This file shows an example subsurface
 layered model to propagate your radar waves through. To run this example model,
@@ -20,6 +27,5 @@ reflected power that would be recorded back at the source.
 model any set of 1D layers you can think of!
 
 
-Stay tuned! More detailed instructions to come soon.  
 
 
