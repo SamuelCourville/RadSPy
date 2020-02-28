@@ -11,12 +11,12 @@ import sys
 ###############################################################################
 ###############################################################################
 
-fileString = "seismicPulse_ideal"
+fileString = "RIMFAX_Pulse_ideal"
 
 ## Source Pulse Parameters
-f = 200 #Hz
-bw = 380
-pl = 1.0
+f = (300e6-150e6)/2+150e6 #Hz
+bw = (300e6-150e6)
+pl = 1e-3
 A = 1.0
 tc = -f/(bw/pl)
 

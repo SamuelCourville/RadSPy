@@ -139,7 +139,7 @@ class EMRM_simulator:
     
 		if len(self.matchFilter) > 1:
 			if (self.f!= Ffreq).any():
-				self.t, Fnew = __interpFreq__(self.tmf,self.t,Fnew)
+				self.t, Fnew = self.__interpFreq__(self.tmf,self.t,Fnew)
 			result = self.__rangeCompress__(Fnew,self.matchFilter,np.array(self.f))
 		else:
 			result = np.fft.ifft(np.fft.ifftshift(Fnew))*np.sqrt(n)
@@ -248,7 +248,7 @@ class EMRM_simulator:
     		out = np.fft.ifft(np.fft.ifftshift(out))*np.sqrt(len(data))
     		return out
 
-	def __interpFreq__(t2,t1,Fnew):
+	def __interpFreq__(self,t2,t1,Fnew):
     		temp = np.fft.ifft(np.fft.ifftshift(Fnew))
     		return t2, np.fft.fftshift(np.fft.fft(np.interp(t2,t1,temp,left=0,right=0)))
     
