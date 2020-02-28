@@ -1,9 +1,10 @@
 import numpy as np
 import csv
 import matplotlib.pyplot as plt
+plt.rcParams.update({'font.size': 16})
 import sys
 
-endT =15 
+endT = 15 
 
 
 if len(sys.argv) != 3:
@@ -99,7 +100,7 @@ def compare(d1,d2,t1,t2,d,m):
 	else:
 		ax2 = f.add_subplot(1,2,2)
 		ax2.step(m,d,'k',linewidth=3)
-		ax2.set_ylim([0,np.max(d)])
+		ax2.set_ylim([-80,np.max(d)])
 		ax2.set_xlim([0,np.max(m)+1])
 		ax2.set_ylabel('$z$ (m)',fontsize=16)
 		ax2.set_xlabel('$\epsilon_r$',fontsize=16)

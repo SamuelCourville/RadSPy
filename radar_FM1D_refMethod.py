@@ -266,7 +266,7 @@ def main(args):
 def plotDataModel(addTime,finalT,sout,modelFile):
     dB_limit = -50
     #endT = 0.10e3
-    endT = 1
+    endT = 6
 
     fig=plt.figure(figsize=(9, 8), dpi= 80, facecolor='w', edgecolor='k')
 
