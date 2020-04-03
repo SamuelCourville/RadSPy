@@ -27,7 +27,6 @@ H = 0
 dB_noise = 0
 h = np.array([0])
 eps = np.array([1.0])
-#eps = np.array([3.6e11])
 lossTangent = np.array([0.0])
 nl=0
 useConductivity = 0
@@ -47,6 +46,22 @@ plotResult = True
 #                       Main simulation function
 ###############################################################################
 def freqComponent(omega,a):
+    '''
+        Usage:
+          This function ... ???
+
+        Input Variables:
+             omega -- ???
+             a -- ???
+
+        Output Variables:
+             b -- ??
+
+        Written by: Sam Courville
+    
+        Last Edited: ???
+
+    '''
     
     if not useConductivity:
         sigma = abs(omega)*eps*lossTangent
@@ -90,6 +105,21 @@ def freqComponent(omega,a):
 #                       File loading functions
 ###############################################################################
 def loadModel(fileName):
+    '''
+        Usage:
+          This function ... ???
+
+        Input Variables:
+             fileName -- ???
+
+        Global variables updated:
+           Explain global variables
+
+        Written by: Sam Courville
+    
+        Last Edited: ???
+
+    '''
     global H
     global dB_noise
     global h
@@ -143,9 +173,24 @@ def loadModel(fileName):
         h = np.append(h, np.array(depths))
         eps = np.append(eps,epsr)*8.85e-12
         lossTangent = np.append(lossTangent,np.array(lossTangentPre))
+        return
     
     
 def loadTruePulse(fileName):
+    '''
+        Usage:
+          This function ... ???
+
+        Input Variables:
+             fileName -- ???
+
+        Output???
+
+        Written by: Sam Courville
+    
+        Last Edited: ???
+
+    '''
     with open(fileName) as csvfile:
         readCSV = csv.reader(csvfile,delimiter=',')
         t = []
@@ -156,6 +201,20 @@ def loadTruePulse(fileName):
     return t,E    
     
 def loadMatchFilter(fileName):
+    '''
+        Usage:
+          This function ... ???
+
+        Input Variables:
+             fileName -- ???
+
+        Output???
+
+        Written by: Sam Courville
+    
+        Last Edited: ???
+
+    '''
     with open(fileName) as csvfile:
         readCSV = csv.reader(csvfile,delimiter=',')
         t = []
@@ -171,6 +230,20 @@ def loadMatchFilter(fileName):
 #                       Range Compression and windowing
 ###############################################################################
 def rangeCompress(data, mfilter, f):
+    '''
+        Usage:
+          This function ... ???
+
+        Input Variables:
+             fileName -- ???
+
+        Output???
+
+        Written by: Sam Courville
+    
+        Last Edited: ???
+
+    '''
     out = data*mfilter
     if windowNum!=0:
         i1 = np.argmin(abs(f-fmin))
@@ -182,17 +255,92 @@ def rangeCompress(data, mfilter, f):
     return out
 
 def interpFreq(t2,t1,Fnew):
+    '''
+        Usage:
+          This function ... ???
+
+        Input Variables:
+             fileName -- ???
+
+        Output???
+
+        Written by: Sam Courville
+    
+        Last Edited: ???
+
+    '''
     temp = np.fft.ifft(np.fft.ifftshift(Fnew))
     return t2, np.fft.fftshift(np.fft.fft(np.interp(t2,t1,temp,left=0,right=0)))
     
 def dB(x):
+    '''
+        Usage:
+          This function ... ???
+
+        Input Variables:
+             fileName -- ???
+
+        Output???
+
+        Written by: Sam Courville
+    
+        Last Edited: ???
+
+    '''
     return 20*np.log10(x)
-    #return 20*np.log10(np.abs(x))
+
+def writeCSVs(h, t, addTime, finalData, result, modelFile):
+  outData_fname = modelFile + "_output_data.csv"
+  with open(outData_fname, 'w') as csvfile:
+    writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+    writer.writerow(['Time (s)','power (dB)','amplitude (real)', 'amplitude (imag)'])
+    for ii in np.arange(len(t)):
+      _t = t[ii] + addTime
+      _f = np.real(finalData[ii])
+      _ra = np.real(result[ii])
+      _ia = np.imag(result[ii])
+      writer.writerow([_t, _f, _ra, _ia])
+  #
+  # Model Output
+  #
+  outModel_file = modelFile + "_model.csv"
+  layers = np.append(np.cumsum(h),[0])
+  nz = 200
+  z = np.linspace(0,np.max(layers)+10,nz)
+  currInd = -1
+  epsz = np.zeros((nz))
+  with open(outModel_file, 'w') as csvfile:
+    writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+    writer.writerow(['Depth (m)', 'eps'])
+    for i in range(0,nz):
+      if z[i] < layers[currInd]:
+          epsz[i] = eps[currInd]/eps0
+      elif currInd<nl:
+          currInd = currInd+1
+          epsz[i] = eps[currInd]/eps0
+      else:
+          epsz[i] = eps[currInd]/eps0
+      writer.writerow([z[i], epsz[i]])
+  return z, epsz
     
 ###############################################################################
 #                       Main script
 ###############################################################################
 def main(args):
+    '''
+        Usage:
+          This function ... ???
+
+        Input Variables:
+             fileName -- ???
+
+        Output???
+
+        Written by: Sam Courville
+    
+        Last Edited: ???
+
+    '''
     
     if len(args) != 2:
         print("Please provide 1 model input file name (txt)")
@@ -250,22 +398,36 @@ def main(args):
         addTime = 2*H/c
         
     finalData = dB(result)-np.max(dB(result))
-    a = np.transpose(np.asarray([np.array(t)+addTime, finalData, result]))
-    np.savetxt(modelFile + "_output_data.csv", a, delimiter=",")
-
-   
-    if plotResult:
-        plotDataModel(addTime,np.array(t),result,modelFile)
+    #
+    # Write output CSVs
+    #
+    z, epsz = writeCSVs(h, t, addTime, finalData, result, modelFile)
     
+    if plotResult:
+        plotDataModel(addTime, np.array(t), result, z, epsz, modelFile)
     return 
         
     
 ###############################################################################
 #                       plot function
 ###############################################################################
-def plotDataModel(addTime,finalT,sout,modelFile):
+
+def plotDataModel(addTime, finalT, sout, z, epsz, modelFile):
+    '''
+        Usage:
+          This function ... ???
+
+        Input Variables:
+             fileName -- ???
+
+        Output???
+
+        Written by: Sam Courville
+    
+        Last Edited: ???
+
+    '''
     dB_limit = -50
-    #endT = 0.10e3
     endT = 6
 
     fig=plt.figure(figsize=(9, 8), dpi= 80, facecolor='w', edgecolor='k')
@@ -275,52 +437,28 @@ def plotDataModel(addTime,finalT,sout,modelFile):
 
     plt.subplot(1,2,1)
     plt.plot(dB(sout)-np.max(dB(sout)),(finalT+addTime)*10**6,linewidth=3)
-    #plt.plot(dB(sout)-np.max(dB(sout)),(finalT+addTime)*10**3,linewidth=3)
     plt.grid()
     axes = plt.gca()
     axes.set_ylim([0+addTime*10**6,endT+addTime*10**6])
     axes.set_xlim([dB_limit,0])
     axes.set_ylabel('Time ($\mu$s)',fontsize=axFont)
-    #axes.set_ylabel('Time (ms)',fontsize=axFont)
     axes.set_xlabel('dB',fontsize=axFont)
     axes.xaxis.set_label_position('top') 
     axes.xaxis.tick_top()    
-    #axes.set_title('Radar return',fontsize=titFont)
     axes.invert_yaxis()
 
-
-    #eps = np.array([2.5,2.5,2.6,3.0,5.5])*eps0
-    layers = np.append(np.cumsum(h),[0])
-    nz = 200
-    z = np.linspace(0,np.max(layers)+10,nz)
-    currInd = -1
-    epsz = np.zeros((nz))
-    for i in range(0,nz):
-        if z[i] < layers[currInd]:
-            epsz[i] = eps[currInd]/eps0
-        elif currInd<nl:
-            currInd = currInd+1
-            epsz[i] = eps[currInd]/eps0
-        else:
-            epsz[i] = eps[currInd]/eps0
-        
-    
     plt.subplot(1,2,2)
     plt.plot(epsz,z,'r',linewidth=4.0)
     axes = plt.gca()
     axes.set_ylabel('Depth (m)',fontsize=axFont)
     axes.set_xlabel('$\epsilon_r$',fontsize=axFont)
-    #axes.set_xlabel('$v_p$ (km/s)',fontsize=axFont)
     axes.set_ylim([-0,np.max(z)])
     axes.set_xlim([0,np.max(epsz)+1])
-    #axes.set_title('Permitivity Model',fontsize=titFont)
     axes.invert_yaxis()
     axes.xaxis.set_label_position('top') 
     axes.xaxis.tick_top()
-    plt.show()
     plt.savefig(modelFile + '_output_figure.png')
+    plt.close('All')
+    return 
 
-    b = np.transpose(np.asarray([ z,epsz]))
-    np.savetxt(modelFile + "_model.csv", b, delimiter=",")
-    
 main(sys.argv)
