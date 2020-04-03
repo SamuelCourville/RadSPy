@@ -9,4 +9,4 @@ run_model2:
 compare:
 	Python ../tools/compare.py models/$(trace)/model data/FPB_719502000_$(trace)
 compare2:
-	Python ../tools/compare.py models/$(trace)/model2 data/FPB_719502000_$(trace)
+	Python ../tools/compare.py models/$(trace)/model2 data/FPB_804402001_$(trace)

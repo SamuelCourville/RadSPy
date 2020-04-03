@@ -74,9 +74,9 @@ def compare(d1,d2,t1,t2,d,m):
 	ax1.legend(['True','Synthetic'])
 
 
-	layerPlot=1
-	if layerPlot:
-		layers = np.array([0.55, 0.45, 0.35, 0.36, 0.47, 0.40, 0.40, 0.75, 0.45, 0.55, 1.0, 0.5, 0.35, 0.35, 0.3, 0.3, 0.25, 0.30, 0.5, 0.45, 0.5, 0.59, 0.45, 0.45, 0.9, 0.8])
+	layerPlot=0
+	if layerPlot==1:
+		layers = np.array([1.15, 0.85, 0.75, 0.76, 0.87, 0.80, 0.80, 1.35, 0.85, 0.95, 1.45, 1.1, 0.55, 0.65, 0.6, 0.6, 0.65, 0.70, 1.1, 0.95, 1.1, 1.39, 0.8, 1.15, 1.5, 1.5])
 		counter = -1
 		last = 0
 		toPlot = np.zeros(len(d))
@@ -92,11 +92,34 @@ def compare(d1,d2,t1,t2,d,m):
 		ax2 = f.add_subplot(1,2,2)
                 ax2.step(toPlot,d,'k',linewidth=3)
                 ax2.set_ylim([-75,np.max(d)+20])
-                ax2.set_xlim([0,1])
+                ax2.set_xlim([0,1.5])
                 ax2.set_ylabel('$z$ (m)',fontsize=16)
                 ax2.set_xlabel('dust thickness $(m)$',fontsize=16)
                 ax2.set_title('Model',fontsize=20)
                 ax2.invert_yaxis()
+	elif layerPlot==2:
+		layers = np.array([4.6,4.2,4.0,4.0,4.3,4.3,4.2,5.1,4.4,4.5,5.3,4.5,4.2,4.0,3.9,4.1,3.6,3.8,4.4,4.6,4.5,4.8,4.3,4.4,5.5,5.5])
+		counter = -1
+		last = 0
+		toPlot = np.zeros(len(d))
+		for i in range(0,len(d)):
+			if np.real(m[i])-3.1 < 0.001:
+				toPlot[i] = 0
+				last = 0
+			else:
+				if last == 0:
+					counter = counter+1
+				toPlot[i] = layers[counter]
+				last = 1
+		ax2 = f.add_subplot(1,2,2)
+                ax2.step(toPlot,d,'k',linewidth=3)
+                ax2.set_ylim([-75,np.max(d)+20])
+                ax2.set_xlim([3,6])
+                ax2.set_ylabel('$z$ (m)',fontsize=16)
+                ax2.set_xlabel('Layer permitivity $(\epsilon_r)$',fontsize=16)
+                ax2.set_title('Model',fontsize=20)
+                ax2.invert_yaxis()
+		
 	else:
 		ax2 = f.add_subplot(1,2,2)
 		ax2.step(m,d,'k',linewidth=3)

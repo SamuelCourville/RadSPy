@@ -48,18 +48,21 @@ plotResult = True
 def freqComponent(omega,a):
     '''
         Usage:
-          This function ... ???
+          This function implements the math from Wait (1970) to solve for the 
+	response from the reflection of a monochromatic electromagnetic wave in
+	a horizontally stratified medium. This solves the reflection for one 
+	frequency component of the radar pulse.
 
         Input Variables:
-             omega -- ???
-             a -- ???
+             omega -- the angular frequency component of the radar pulse.
+             a -- the amplitude of the frequency component in the source pulse.
 
         Output Variables:
-             b -- ??
+             b -- the amplitude of the reflected frequency component.
 
         Written by: Sam Courville
     
-        Last Edited: ???
+        Last Edited: 04/03/2020
 
     '''
     
@@ -107,17 +110,42 @@ def freqComponent(omega,a):
 def loadModel(fileName):
     '''
         Usage:
-          This function ... ???
+          This function loads a model file. The model file should contain all 
+	of the global variables needed to run a successful simulation. See the 
+	example model text file in the github repo for an example model file.
 
         Input Variables:
-             fileName -- ???
+             fileName -- the name of the text file which includes the simulation
+	parameters.
 
         Global variables updated:
-           Explain global variables
+           The model text file should include the following global variables:
+		H - the altitude (height) of the spacecraft above the ground (m)
+		dB_noise - if greater than -101 dB, the code will add random 
+			gaussian noise to the synthetic radar return at the
+			level denoted by dB_noise. 
+		h - an array which represents the thicknesses (m) of each layer
+		eps - array, the relative real dielectric constant of each layer
+		lossTangent - an array of loss tangent values for the layers. 
+			if useConductivity is set to 1, then this variable 
+			should be set to conductivity values (S/m).
+		nl - the number of layers in the model
+		useConductivity - 1 or 0. See lossTangent variable description.
+		windowNum - The Kaiser window degree to be applied on the output
+			data. a 0 will apply no window.
+		fmin - The low bound on the Kaiser frequency window (Hz). 
+			use 15e6 for SHARAD.
+		fmax - The high bound on the kaiser frequency window (Hz).
+			use 20e6 for SHARAD.
+		pulseFile - a filename and path to a csv file with the source 
+			pulse. See example modelFile and corresponding pulse.
+		filterFile - a filename and path to a csv file with the 
+			matched filter. See example. 
+		
 
         Written by: Sam Courville
     
-        Last Edited: ???
+        Last Edited: 04/03/2020
 
     '''
     global H
@@ -135,12 +163,12 @@ def loadModel(fileName):
     with open(fileName) as f:
         junk = f.readline()
         junk = f.readline()
-        H = float(f.readline().strip())                 # Spacecraft Altitude (m)
+        H = float(f.readline().strip())                # Spacecraft Altitude (m)
         junk = f.readline()
-        dB_noise = float((f.readline().strip()))          # What's the noise level in dB?
-        dB_noise = dB_noise-100/dB_noise                # This is an approximation. Ask me for expln. 
+        dB_noise = float((f.readline().strip()))       # What's the noise level in dB?
+        dB_noise = dB_noise-100/dB_noise               # This is an approximation. Ask me for expln. 
         junk = f.readline()
-        nl = float((f.readline().strip()))                # number of layers
+        nl = int(float((f.readline().strip())))        # number of layers
         junk = f.readline()
         depthsstr = (f.readline().strip())
         depthsstr = depthsstr.split(' ')
@@ -150,9 +178,9 @@ def loadModel(fileName):
         epsrstr = epsrstr.split(' ')
         epsr = [float(i) for i in epsrstr]             # real relative permitivity
         junk = f.readline()
-        useConductivity = float((f.readline().strip()))   # number of layers
+        useConductivity = float((f.readline().strip()))# number of layers
         junk = f.readline()
-        lossTangentstr = (f.readline().strip())           # loss tangent or conductivity
+        lossTangentstr = (f.readline().strip())        # loss tangent or conductivity
         lossTangentstr = lossTangentstr.split(' ')
         lossTangentPre = [float(i) for i in lossTangentstr]
         junk = f.readline()
@@ -179,16 +207,20 @@ def loadModel(fileName):
 def loadTruePulse(fileName):
     '''
         Usage:
-          This function ... ???
+          This function loads a pulse file.
 
         Input Variables:
-             fileName -- ???
+             fileName -- this should be a string with the name and path to a 
+		file containing the desired source pulse to simulate. The CSV			file should contain two columns, time and amplitude. 
 
-        Output???
+        Output:
+	     The output is two arrays, E, which is a time series of the 
+	Electric field amplitude from the input file, and t, which is an 
+	array of the corresponding time values for the time series E.
 
         Written by: Sam Courville
     
-        Last Edited: ???
+        Last Edited: 04/03/2020
 
     '''
     with open(fileName) as csvfile:
@@ -203,16 +235,22 @@ def loadTruePulse(fileName):
 def loadMatchFilter(fileName):
     '''
         Usage:
-          This function ... ???
+          This function loads the matched filter
 
         Input Variables:
-             fileName -- ???
+             fileName -- this should be a string with the name and path to a 
+		file containing the desired matched filter to compress with 
+		in the frequency domain. The CSV file should contain three 
+		columns, the time series value for the corresponding pulse, 
+		the frequency axis for the filter, and the amplitude spectrum 
+		of the matched filter.
 
-        Output???
+        Output:
+	     The three colums of the input csv files as arrays.
 
         Written by: Sam Courville
     
-        Last Edited: ???
+        Last Edited: 04/03/2020
 
     '''
     with open(fileName) as csvfile:
@@ -232,16 +270,19 @@ def loadMatchFilter(fileName):
 def rangeCompress(data, mfilter, f):
     '''
         Usage:
-          This function ... ???
+          This function range compresses the resulting reflected electromagnetic          field with the given matched filter. 
 
         Input Variables:
-             fileName -- ???
+             data - the frequency spectrum of the refelcted E-field
+	     mfilter - the matched filter to compress data with in the f-domain
+	     f - the frequency axis values for data and mfilter.
 
-        Output???
+        Output:
+	     out - the range compressed simulated radar data in the time domain.
 
         Written by: Sam Courville
     
-        Last Edited: ???
+        Last Edited: 04/03/2020
 
     '''
     out = data*mfilter
@@ -257,16 +298,22 @@ def rangeCompress(data, mfilter, f):
 def interpFreq(t2,t1,Fnew):
     '''
         Usage:
-          This function ... ???
+          This function interpolates a frequency spectrum. In the case that the		user inputs a matched filter that has a different number of elements 
+	than the source pulse, this function will interpolate it so that the 		number of elements match. I advise inputting pulses and matched filters		that have the same number of elements.
 
         Input Variables:
-             fileName -- ???
+             t2 - the time values to interpolate to
+	     t1 - the time values corresponding to the input Fnew
+	     Fnew - a frequency domain transform of the time series data 
+		corresponding to t1. 
 
-        Output???
+        Output
+	     t2 - 
+             out - Fnew but interpolated to fit the time series values in t2.
 
         Written by: Sam Courville
     
-        Last Edited: ???
+        Last Edited: 04/03/2020
 
     '''
     temp = np.fft.ifft(np.fft.ifftshift(Fnew))
@@ -275,53 +322,80 @@ def interpFreq(t2,t1,Fnew):
 def dB(x):
     '''
         Usage:
-          This function ... ???
+          This function converts amplitude to power in dB.
 
         Input Variables:
-             fileName -- ???
+             x - an array of amplitude values.
 
-        Output???
+        Output:
+	     an array in dB
 
         Written by: Sam Courville
     
-        Last Edited: ???
+        Last Edited: 04/03/2020
 
     '''
     return 20*np.log10(x)
 
 def writeCSVs(h, t, addTime, finalData, result, modelFile):
-  outData_fname = modelFile + "_output_data.csv"
-  with open(outData_fname, 'w') as csvfile:
-    writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
-    writer.writerow(['Time (s)','power (dB)','amplitude (real)', 'amplitude (imag)'])
-    for ii in np.arange(len(t)):
-      _t = t[ii] + addTime
-      _f = np.real(finalData[ii])
-      _ra = np.real(result[ii])
-      _ia = np.imag(result[ii])
-      writer.writerow([_t, _f, _ra, _ia])
-  #
-  # Model Output
-  #
-  outModel_file = modelFile + "_model.csv"
-  layers = np.append(np.cumsum(h),[0])
-  nz = 200
-  z = np.linspace(0,np.max(layers)+10,nz)
-  currInd = -1
-  epsz = np.zeros((nz))
-  with open(outModel_file, 'w') as csvfile:
-    writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
-    writer.writerow(['Depth (m)', 'eps'])
-    for i in range(0,nz):
-      if z[i] < layers[currInd]:
-          epsz[i] = eps[currInd]/eps0
-      elif currInd<nl:
-          currInd = currInd+1
-          epsz[i] = eps[currInd]/eps0
-      else:
-          epsz[i] = eps[currInd]/eps0
-      writer.writerow([z[i], epsz[i]])
-  return z, epsz
+    '''
+        Usage:
+          This function writes the simulation outputs into CSV files.
+
+        Input Variables:
+             h - the thicknesses of each layer.
+	     t - the time values corresponding to the output data.
+	     addTime - To be implemented in a future version. ignore.
+	     finalData - The output radar reflection data in power (dB).
+		The array is normalized so that the most powerful reflection 
+		has a value of 0 dB.
+	     result - The output radar reflection data in amplitude (V/m).
+	     modelFile - a string with the name and path to the output csv file
+		to be created. 
+
+        Output:
+	     The depth and real permittivity of each layer for plotting purpose
+	     
+
+        Written by: Sam Courville
+    
+        Last Edited: 04/03/2020
+
+    '''
+    outData_fname = modelFile + "_output_data.csv"
+    with open(outData_fname, 'w') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+        writer.writerow(['Time (s)','power (dB)','amplitude (real)', 'amplitude (imag)'])
+        for ii in np.arange(len(t)):
+            _t = t[ii] + addTime
+            _f = np.real(finalData[ii])
+            _ra = np.real(result[ii])
+            _ia = np.imag(result[ii])
+            writer.writerow([_t, _f, _ra, _ia])
+
+	#
+	# Model Output
+	#
+    outModel_file = modelFile + "_model.csv"
+    layers = np.append(np.cumsum(h),[0])
+    z = np.zeros(int(nl*2-1))
+    epsz = np.zeros(int(nl*2-1))
+    for i in range(0,nl):
+	if i == (nl-1):
+            z[i*2] = layers[i]
+            epsz[i*2] = np.real(eps[i+1]/8.85e-12)
+	else:
+            z[i*2] = layers[i]
+            z[i*2+1] = layers[i+1]
+            epsz[i*2] = np.real(eps[i+1]/8.85e-12)
+            epsz[i*2+1] = np.real(eps[i+1]/8.85e-12)
+    
+    with open(outModel_file, 'w') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+        writer.writerow(['Depth (m)', 'eps'])
+        for i in range(0,len(z)):
+            writer.writerow([z[i], epsz[i]])
+    return z, epsz
     
 ###############################################################################
 #                       Main script
@@ -329,16 +403,18 @@ def writeCSVs(h, t, addTime, finalData, result, modelFile):
 def main(args):
     '''
         Usage:
-          This function ... ???
+          This function runs the radar simulation
 
         Input Variables:
-             fileName -- ???
+             args - the model file with all simulation parameters input as a 
+		name and path input
 
-        Output???
+        Output
+	     none
 
         Written by: Sam Courville
     
-        Last Edited: ???
+        Last Edited: 04/03/2020
 
     '''
     
@@ -402,7 +478,7 @@ def main(args):
     # Write output CSVs
     #
     z, epsz = writeCSVs(h, t, addTime, finalData, result, modelFile)
-    
+   
     if plotResult:
         plotDataModel(addTime, np.array(t), result, z, epsz, modelFile)
     return 
@@ -415,20 +491,29 @@ def main(args):
 def plotDataModel(addTime, finalT, sout, z, epsz, modelFile):
     '''
         Usage:
-          This function ... ???
+          This function plots the layer model and output data side by side
 
         Input Variables:
-             fileName -- ???
+             addTime - adds this amount of time to all elements in the time axis
+	     finalT - the time axis corresponding to the output data.
+	     sout - the reflected signal in power (dB)
+	     z - layer depths
+	     epsz - layer epsilon values
+	     modelFile - the name of the file to save the output figure as. 
 
-        Output???
+        Output:
+		none
 
         Written by: Sam Courville
     
-        Last Edited: ???
+        Last Edited: 04/03/2020
 
     '''
     dB_limit = -50
-    endT = 6
+    endT = 0.5
+    
+    for i in range(1,nl):
+	endT = endT+2*(h[i]/(c/np.sqrt((eps[i]/eps0)))*1e6)
 
     fig=plt.figure(figsize=(9, 8), dpi= 80, facecolor='w', edgecolor='k')
 
@@ -448,11 +533,20 @@ def plotDataModel(addTime, finalT, sout, z, epsz, modelFile):
     axes.invert_yaxis()
 
     plt.subplot(1,2,2)
-    plt.plot(epsz,z,'r',linewidth=4.0)
+    for i in range(0,2*nl-1):
+	if i==0:
+		plt.plot([1.0, epsz[i]],[z[i], z[i]], color='r', linewidth=4.0)
+		plt.plot([epsz[i],epsz[i+1]],[z[i],z[i+1]], color='r', linewidth=4.0)
+	elif i==2*nl-2:
+		plt.plot([epsz[i-1], epsz[i]],[z[i], z[i]], color='r', linewidth=4.0)
+		plt.plot([epsz[i],epsz[i]],[z[i],z[i]+15], color='r', linewidth=4.0)
+	else:
+		plt.plot([epsz[i-1], epsz[i]],[z[i], z[i]], color='r', linewidth=4.0)
+		plt.plot([epsz[i],epsz[i+1]],[z[i],z[i+1]], color='r', linewidth=4.0)
     axes = plt.gca()
     axes.set_ylabel('Depth (m)',fontsize=axFont)
     axes.set_xlabel('$\epsilon_r$',fontsize=axFont)
-    axes.set_ylim([-0,np.max(z)])
+    axes.set_ylim([-0.5,np.max(z)+15])
     axes.set_xlim([0,np.max(epsz)+1])
     axes.invert_yaxis()
     axes.xaxis.set_label_position('top') 
