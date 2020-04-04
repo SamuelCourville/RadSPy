@@ -29,6 +29,9 @@ class EMRM_simulator:
 	#               Initialization functions
 	#######################################################################
 	def __init__(self):
+		'''
+			class initialization function
+		'''
 		# Global Variables
 		self.H = 0
 		self.dB_noise = -100
@@ -52,6 +55,29 @@ class EMRM_simulator:
 		self.plotResult = False    
 
 	def setModel(self,H,thicknesses,eps,lossOrCond,useConductivity):
+		'''
+		Usage:
+			This function sets the layered model to simulate.
+
+		Input Variables:
+			H -- The altitude of the spacecraft in meters above the
+				surface
+			thicknesses -- The thickness of each layer in meters.
+				(array)
+			eps -- the real relative dielectric constant of each 
+				layer. (array)
+			lossOrCond -- The loss tangent or conductivity value of
+				each layer. (array)
+			useConductivity -- Enter 1 if you input conductivity 
+				values for 'lossOrCond,' or 0 if you input
+				loss tangent values.
+
+		Output Variables:
+			none
+
+		Written by: Sam Courville
+		Last Edited: 04/03/2020
+		'''
 		self.useConductivity=useConductivity
 		self.H = H
 		self.lossTangent = np.append(self.lossTangent,lossOrCond)
@@ -60,15 +86,65 @@ class EMRM_simulator:
 		self.nl = len(self.eps)-1
 
 	def setPulse(self,pulse,time):
+		'''
+		Usage:
+			This function sets the source pulse used for simulation.
+
+		Input Variables:
+			pulse -- an array containing a time series of the source
+				 pulse to be sued for simulation.
+			t -- an array with values corresponding to the time axis
+				of the pulse.
+
+		Output Variables:
+			none
+
+		Written by: Sam Courville
+		Last Edited: 04/03/2020
+		'''
 		self.pulse = pulse
 		self.t = time
 
 	def setMatchFilter(self,filt,f,t):
+		'''
+		Usage:
+			This function sets the matched filter used for range
+			compression.
+
+		Input Variables:
+			filt -- an array containing the matched filter in the
+				frequency domain.
+			f -- the frequency axis corresponding to the filter. 
+			t -- the time axis corresponding to the fft of the 
+				filter.
+
+		Output Variables:
+			none
+
+		Written by: Sam Courville
+		Last Edited: 04/03/2020
+		'''
 		self.matchFilter = filt
 		self.f = f
 		self.tmf = t
 
 	def setWindowParam(self,windowNum,fmin,fmax):
+		'''
+		Usage:
+			This function sets the simulators windowing parameters
+
+		Input Variables:
+			windowNum -- the Kaiser window degree. 6 corresponds to 
+				a Hann wondow. 0 will result in no windowing.
+			fmin -- the low frequency end of the window. 
+			fmax -- the high frequency end of the window.
+
+		Output Variables:
+			none
+
+		Written by: Sam Courville
+		Last Edited: 04/03/2020
+		'''
 		self.windowNum=windowNum
 		self.fmin = fmin
 		self.fmax = fmax
@@ -79,6 +155,26 @@ class EMRM_simulator:
 	#######################################################################
 	
 	def __freqComponent__(self,omega,a):
+		'''
+		Usage:
+			This function implements the math from Wait (1970) to 
+			solve for the response from the reflection of a 
+			monochromatic electromagnetic wave in a horizontally 
+			stratified medium. This solves the reflection for one 
+			frequency component of the radar pulse.
+
+		Input Variables:
+			omega -- the angular frequency component of the radar 
+				pulse.
+			a -- the amplitude of the frequency component in the 
+				source pulse.
+
+		Output Variables:
+			b -- the amplitude of the reflected frequency component.
+
+		Written by: Sam Courville
+		Last Edited: 04/03/2020
+		'''
 		if not self.useConductivity:
 			sigma = abs(omega)*self.eps*self.lossTangent
 		else:
@@ -113,6 +209,25 @@ class EMRM_simulator:
 
 
 	def runSim(self):    
+		'''
+		Usage:
+			This function runs the radar simulation
+
+		Input Variables:
+			none - but the simulation parameters must be set for the
+			simulator class object via the load or set methods 
+			provided.
+			
+		Output
+			a - a 2D array with two columns. The second column is 
+			the time series of the reflected radar signal in power 
+			(dB), and the first is the time axis values associated 
+			with the signal.
+
+		Written by: Sam Courville
+		Last Edited: 04/03/2020
+		'''
+
 		if len(self.eps) < 2:
 			print("Please provide 1 model input file name (txt)")
 			quit()
@@ -151,7 +266,6 @@ class EMRM_simulator:
         
 		finalData = self.__dB__(result)-np.max(self.__dB__(result))
 		a = np.transpose(np.asarray([np.array(self.t)+addTime, finalData, result]))
-		#np.savetxt(modelFile + "_output_data.csv", a, delimiter=",")
 
 		if self.plotResult:
 			self.plotDataModel(addTime,np.array(self.t),result)
@@ -163,7 +277,51 @@ class EMRM_simulator:
 	#               File loading functions
 	#######################################################################
 	def loadModel(fileName):
-    		global pulseFile
+		'''
+		Usage:
+		This function loads a model file. The model file should contain 
+		all of the global variables needed to run a successful 
+		simulation. See the example model text file in the github repo 
+		for an example model file.
+
+		Input Variables:
+			fileName -- the name of the text file which includes the
+				simulation parameters.
+
+        	Global variables updated:
+		The model text file should include the following global vars:
+			H - the altitude (height) of the spacecraft above the 
+				ground (m)
+			dB_noise - if greater than -101 dB, the code will add 
+				random gaussian noise to the synthetic radar 
+				return at the level denoted by dB_noise.
+			h - an array which represents the thicknesses (m) of 
+				each layer
+			eps - array, the relative real dielectric constant of 
+				each layer
+			lossTangent - an array of loss tangent values for the 
+				layers. if useConductivity is set to 1, then 
+				this variable should be set to conductivity 
+				values (S/m).
+			nl - the number of layers in the model
+			useConductivity - 1 or 0. See lossTangent variable 
+				description.
+			windowNum - The Kaiser window degree to be applied on 
+				the output data. a 0 will apply no window.
+			fmin - The low bound on the Kaiser frequency window(Hz).
+				 use 15e6 for SHARAD.
+			fmax - The high bound on the kaiser frequency window(Hz)
+			 	Use 20e6 for SHARAD.
+			pulseFile - a filename and path to a csv file with the 
+				source pulse. See example modelFile and 
+				corresponding pulse.
+			filterFile - a filename and path to a csv file with the
+				 matched filter. See example.
+
+		Written by: Sam Courville
+		Last Edited: 04/03/2020
+		'''	
+		global pulseFile
     		global filterFile
     		with open(fileName) as f:
         		junk = f.readline()
@@ -209,6 +367,25 @@ class EMRM_simulator:
     
     
 	def loadPulse(self,fileName):
+		'''
+		Usage:
+		This function loads a pulse file.
+
+		Input Variables:
+			fileName -- this should be a string with the name and 
+				path to a file containing the desired source 
+				pulse to simulate. The CSV file should contain 
+				two columns, time and amplitude.
+
+		Output:
+			The output is two arrays, E, which is a time series of 
+			the Electric field amplitude from the input file, and t,
+			which is an array of the corresponding time values for 
+			the time series E.
+
+		Written by: Sam Courville
+		Last Edited: 04/03/2020
+		'''
 		with open(fileName) as csvfile:
 			readCSV = csv.reader(csvfile,delimiter=',')
 			t = []
@@ -221,6 +398,25 @@ class EMRM_simulator:
 		return t,E    
     
 	def loadMatchFilter(self,fileName):
+		'''
+		Usage:
+			This function loads the matched filter
+
+		Input Variables:
+			fileName -- this should be a string with the name and 
+				path to a file containing the desired matched 
+				filter to compress with in the frequency domain.
+				The CSV file should contain three columns, the 
+				time series value for the corresponding pulse, 
+				the frequency axis for the filter, and the 
+				amplitude spectrum of the matched filter.
+
+		Output:
+		The three colums of the input csv files as arrays.
+
+		Written by: Sam Courville
+		Last Edited: 04/03/2020
+		'''	
 		with open(fileName) as csvfile:
 			readCSV = csv.reader(csvfile,delimiter=',')
 			t = []
@@ -238,7 +434,25 @@ class EMRM_simulator:
 	########################################################################	                       Range Compression and windowing
 	#######################################################################
 	def __rangeCompress__(self,data, mfilter, f):
-    		out = data*mfilter
+		'''
+		Usage:
+		This function range compresses the resulting reflected 
+		electromagnetic field with the given matched filter. 	
+		
+		Input Variables:
+			data - the frequency spectrum of the refelcted E-field
+			mfilter - the matched filter to compress data within the
+				f-domain
+			f - the frequency axis values for data and mfilter.
+
+		Output:
+			out - the range compressed simulated radar data in the 
+				time domain.
+	
+		Written by: Sam Courville
+		Last Edited: 04/03/2020
+		'''
+		out = data*mfilter
     		if self.windowNum!=0:
         		i1 = np.argmin(abs(f-self.fmin))
         		i2 = np.argmin(abs(f-self.fmax))
@@ -249,20 +463,68 @@ class EMRM_simulator:
     		return out
 
 	def __interpFreq__(self,t2,t1,Fnew):
-    		temp = np.fft.ifft(np.fft.ifftshift(Fnew))
+		'''
+		Usage:
+		This function interpolates a frequency spectrum. In the case 
+		that the user inputs a matched filter that has a different 
+		number of elements	
+	
+		Input Variables:
+			t2 - the time values to interpolate to
+			t1 - the time values corresponding to the input Fnew
+			Fnew - a frequency domain transform of the time series 
+				data corresponding to t1.
+		Output:
+			t2 -
+			out - Fnew but interpolated to fit the time series 
+				values in t2
+
+		Written by: Sam Courville
+		Last Edited: 04/03/2020
+		'''
+		temp = np.fft.ifft(np.fft.ifftshift(Fnew))
     		return t2, np.fft.fftshift(np.fft.fft(np.interp(t2,t1,temp,left=0,right=0)))
     
 	def __dB__(self,x):
-    		return 20*np.log10(x)
-    		#return 20*np.log10(np.abs(x))
+		'''
+		Usage:
+		This function converts amplitude to power in dB.
+		
+		Input Variables:
+			x - an array of amplitude values. 
+
+		Output:
+			an array in dB
+
+		Written by: Sam Courville
+		Last Edited: 04/03/2020
+		'''
+		return 20*np.log10(x)
     
 	#######################################################################
 	#                plot function
 	#######################################################################
 	def plotDataModel(self,addTime,finalT,sout):
-    		dB_limit = -50
-    		#endT = 0.10e3
-    		endT = self.plotTime 
+		'''
+		Usage:
+		This function plots the layer model and output data side by side
+		
+		Input Variables:
+			addTime - adds this amount of time to all elements in 
+				the time axis
+			finalT - the time axis corresponding to the output data.
+			sout - the reflected signal in power (dB)
+
+		Output:
+			none
+
+		Written by: Sam Courville
+		Last Edited: 04/03/2020
+		'''
+
+		dB_limit = -50
+    		
+		endT = self.plotTime 
 
     		fig=plt.figure(figsize=(9, 8), dpi= 80, facecolor='w', edgecolor='k')
 
@@ -277,44 +539,46 @@ class EMRM_simulator:
     		axes.set_ylim([0+addTime*10**6,endT+addTime*10**6])
     		axes.set_xlim([dB_limit,0])
     		axes.set_ylabel('Time ($\mu$s)',fontsize=axFont)
-    		#axes.set_ylabel('Time (ms)',fontsize=axFont)
     		axes.set_xlabel('dB',fontsize=axFont)
     		axes.xaxis.set_label_position('top') 
     		axes.xaxis.tick_top()    
-    		#axes.set_title('Radar return',fontsize=titFont)
     		axes.invert_yaxis()
 
 
-    		layers = np.append(np.cumsum(self.h),[0])
-    		nz = 200
-    		z = np.linspace(0,np.max(layers)+10,nz)
-    		currInd = -1
-    		epsz = np.zeros((nz))
-    		for i in range(0,nz):
-        		if z[i] < layers[currInd]:
-            			epsz[i] = self.eps[currInd]/self.eps0
-        		elif currInd<self.nl:
-            			currInd = currInd+1
-            			epsz[i] = self.eps[currInd]/self.eps0
-        		else:
-            			epsz[i] = self.eps[currInd]/self.eps0
-        
-    
+		layers = np.append(np.cumsum(self.h),[0])
+		z = np.zeros(int(self.nl*2-1))
+		epsz = np.zeros(int(self.nl*2-1))
+		for i in range(0,self.nl):
+			if i == (self.nl-1):
+				z[i*2] = layers[i]
+				epsz[i*2] = np.real(self.eps[i+1]/self.eps0)
+			else:
+				z[i*2] = layers[i]
+				z[i*2+1] = layers[i+1]
+				epsz[i*2] = np.real(self.eps[i+1]/self.eps0)
+				epsz[i*2+1] = np.real(self.eps[i+1]/self.eps0)
+
+
     		plt.subplot(1,2,2)
-    		plt.plot(epsz,z,'r',linewidth=4.0)
+		for i in range(0,2*self.nl-1):
+			if i==0:
+				plt.plot([1.0, epsz[i]],[z[i], z[i]], color='r', linewidth=4.0)
+				plt.plot([epsz[i],epsz[i+1]],[z[i],z[i+1]], color='r', linewidth=4.0)
+			elif i==2*self.nl-2:
+				plt.plot([epsz[i-1], epsz[i]],[z[i], z[i]], color='r', linewidth=4.0)
+				plt.plot([epsz[i],epsz[i]],[z[i],z[i]+15], color='r', linewidth=4.0)
+			else:
+				plt.plot([epsz[i-1], epsz[i]],[z[i], z[i]], color='r', linewidth=4.0)
+				plt.plot([epsz[i],epsz[i+1]],[z[i],z[i+1]], color='r', linewidth=4.0)
     		axes = plt.gca()
     		axes.set_ylabel('Depth (m)',fontsize=axFont)
     		axes.set_xlabel('$\epsilon_r$',fontsize=axFont)
-    		#axes.set_xlabel('$v_p$ (km/s)',fontsize=axFont)
-    		axes.set_ylim([-0,np.max(z)])
+    		axes.set_ylim([-0,np.max(z)+15])
     		axes.set_xlim([0,np.max(epsz)+1])
-    		#axes.set_title('Permitivity Model',fontsize=titFont)
     		axes.invert_yaxis()
     		axes.xaxis.set_label_position('top') 
     		axes.xaxis.tick_top()
     		plt.show()
-    		#plt.savefig(modelFile + '_output_figure.png')
 
     		b = np.transpose(np.asarray([ z,epsz]))
-    		#np.savetxt(modelFile + "_model.csv", b, delimiter=",")
     
