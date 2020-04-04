@@ -10,6 +10,8 @@
 ###############################################################################
 
 import numpy as np
+import matplotlib as mpl
+mpl.use('Agg')
 import matplotlib.pyplot as plt
 plt.rcParams.update({'font.size': 22})
 import csv
