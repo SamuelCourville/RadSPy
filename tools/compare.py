@@ -121,8 +121,20 @@ def compare(d1,d2,t1,t2,d,m):
                 ax2.invert_yaxis()
 		
 	else:
+		epsz=m
+		z=d
+		nl=(len(z)+1)/2
 		ax2 = f.add_subplot(1,2,2)
-		ax2.step(m,d,'k',linewidth=3)
+		for i in range(0,2*nl-1):
+			if i==0:
+				ax2.plot([1.0, epsz[i]],[z[i], z[i]], color='r', linewidth=4.0)
+				ax2.plot([epsz[i],epsz[i+1]],[z[i],z[i+1]], color='r', linewidth=4.0)
+			elif i==2*nl-2:
+				ax2.plot([epsz[i-1], epsz[i]],[z[i], z[i]], color='r', linewidth=4.0)
+				ax2.plot([epsz[i],epsz[i]],[z[i],z[i]+15], color='r', linewidth=4.0)
+			else:
+				ax2.plot([epsz[i-1], epsz[i]],[z[i], z[i]], color='r', linewidth=4.0)
+				ax2.plot([epsz[i],epsz[i+1]],[z[i],z[i+1]], color='r', linewidth=4.0)
 		ax2.set_ylim([-80,np.max(d)])
 		ax2.set_xlim([0,np.max(m)+1])
 		ax2.set_ylabel('$z$ (m)',fontsize=16)
@@ -155,22 +167,30 @@ def main():
 		readCSV = csv.reader(csvfile,delimiter=',')	
 		timem = []
 		Em = []
+		skip1 = 0
 		for row in readCSV:
-			timem.append(complex(row[0]))
-			if "+-" in row[1]:
-				stupid = row[1].replace("+-","-")
-				Em.append(complex(stupid))
+			if skip1==0:
+				skip1=1
 			else:
-				Em.append(complex(row[1]))
+				timem.append(complex(row[0]))
+				if "+-" in row[1]:
+					stupid = row[1].replace("+-","-")
+					Em.append(complex(stupid))
+				else:
+					Em.append(complex(row[1]))
 				
 
 	with open(modelFile+'_model.csv') as csvfile:
 		readCSV = csv.reader(csvfile,delimiter=',')	
 		d = []
 		m = []
+		skip1 = 0
 		for row in readCSV:
-			d.append(complex(row[0]))
-			m.append(complex(row[1]))
+			if skip1==0:
+				skip1=1
+			else:
+				d.append(complex(row[0]))
+				m.append(complex(row[1]))
 
 	tm = np.real(timem)
 	td=np.real(timed)
