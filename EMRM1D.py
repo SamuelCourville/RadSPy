@@ -578,6 +578,7 @@ class EMRM_simulator:
     		axes.invert_yaxis()
     		axes.xaxis.set_label_position('top') 
     		axes.xaxis.tick_top()
+		fig.tight_layout()
     		plt.show()
 
     		b = np.transpose(np.asarray([ z,epsz]))

@@ -553,6 +553,7 @@ def plotDataModel(addTime, finalT, sout, z, epsz, modelFile):
     axes.invert_yaxis()
     axes.xaxis.set_label_position('top') 
     axes.xaxis.tick_top()
+    fig.tight_layout()
     plt.savefig(modelFile + '_output_figure.png')
     plt.close('All')
     return 
