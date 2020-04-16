@@ -383,10 +383,10 @@ def writeCSVs(h, t, addTime, finalData, result, modelFile):
     z = np.zeros(int(nl*2-1))
     epsz = np.zeros(int(nl*2-1))
     for i in range(0,nl):
-	if i == (nl-1):
+        if i == (nl-1):
             z[i*2] = layers[i]
             epsz[i*2] = np.real(eps[i+1]/8.85e-12)
-	else:
+        else:
             z[i*2] = layers[i]
             z[i*2+1] = layers[i+1]
             epsz[i*2] = np.real(eps[i+1]/8.85e-12)
@@ -536,15 +536,15 @@ def plotDataModel(addTime, finalT, sout, z, epsz, modelFile):
 
     plt.subplot(1,2,2)
     for i in range(0,2*nl-1):
-	if i==0:
-		plt.plot([1.0, epsz[i]],[z[i], z[i]], color='r', linewidth=4.0)
-		plt.plot([epsz[i],epsz[i+1]],[z[i],z[i+1]], color='r', linewidth=4.0)
-	elif i==2*nl-2:
-		plt.plot([epsz[i-1], epsz[i]],[z[i], z[i]], color='r', linewidth=4.0)
-		plt.plot([epsz[i],epsz[i]],[z[i],z[i]+15], color='r', linewidth=4.0)
-	else:
-		plt.plot([epsz[i-1], epsz[i]],[z[i], z[i]], color='r', linewidth=4.0)
-		plt.plot([epsz[i],epsz[i+1]],[z[i],z[i+1]], color='r', linewidth=4.0)
+        if i==0:
+            plt.plot([1.0, epsz[i]],[z[i], z[i]], color='r', linewidth=4.0)
+                plt.plot([epsz[i],epsz[i+1]],[z[i],z[i+1]], color='r', linewidth=4.0)
+        elif i==2*nl-2:
+            plt.plot([epsz[i-1], epsz[i]],[z[i], z[i]], color='r', linewidth=4.0)
+            plt.plot([epsz[i],epsz[i]],[z[i],z[i]+15], color='r', linewidth=4.0)
+        else:
+            plt.plot([epsz[i-1], epsz[i]],[z[i], z[i]], color='r', linewidth=4.0)
+            plt.plot([epsz[i],epsz[i+1]],[z[i],z[i+1]], color='r', linewidth=4.0)
     axes = plt.gca()
     axes.set_ylabel('Depth (m)',fontsize=axFont)
     axes.set_xlabel('$\epsilon_r$',fontsize=axFont)
