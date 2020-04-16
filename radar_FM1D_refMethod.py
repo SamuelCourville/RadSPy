@@ -515,7 +515,7 @@ def plotDataModel(addTime, finalT, sout, z, epsz, modelFile):
     endT = 0.5
     
     for i in range(1,nl):
-	endT = endT+2*(h[i]/(c/np.sqrt((eps[i]/eps0)))*1e6)
+      endT = endT+2*(h[i]/(c/np.sqrt((eps[i]/eps0)))*1e6)
 
     fig=plt.figure(figsize=(9, 8), dpi= 80, facecolor='w', edgecolor='k')
 
