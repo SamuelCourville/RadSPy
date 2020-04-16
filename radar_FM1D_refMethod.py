@@ -538,7 +538,7 @@ def plotDataModel(addTime, finalT, sout, z, epsz, modelFile):
     for i in range(0,2*nl-1):
         if i==0:
             plt.plot([1.0, epsz[i]],[z[i], z[i]], color='r', linewidth=4.0)
-                plt.plot([epsz[i],epsz[i+1]],[z[i],z[i+1]], color='r', linewidth=4.0)
+            plt.plot([epsz[i],epsz[i+1]],[z[i],z[i+1]], color='r', linewidth=4.0)
         elif i==2*nl-2:
             plt.plot([epsz[i-1], epsz[i]],[z[i], z[i]], color='r', linewidth=4.0)
             plt.plot([epsz[i],epsz[i]],[z[i],z[i]+15], color='r', linewidth=4.0)
