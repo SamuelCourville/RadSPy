@@ -324,48 +324,47 @@ class EMRM_simulator:
 		global pulseFile
 		global filterFile
 		with open(fileName) as f:
-			junk = f.readline()
-			junk = f.readline()
-			H = float(f.readline().strip())# Spacecraft Altitude (m)
-			junk = f.readline()
-			dB_noise = float((f.readline().strip()))# What's the noise level in dB?
-			dB_noise = dB_noise-100/dB_noise# This is an approximation. Ask me for expln. 
-			junk = f.readline()
-			nl = float((f.readline().strip())) # number of layers
-			junk = f.readline()
-			depthsstr = (f.readline().strip())
-			depthsstr = depthsstr.split(' ')
-			depths = [float(i) for i in depthsstr] # Layer Thicknesses (m)
-			junk = f.readline()
-			epsrstr = (f.readline().strip())
-			epsrstr = epsrstr.split(' ')
-			epsr = [float(i) for i in epsrstr] # real relative permitivity
-			junk = f.readline()
-			useConductivity = float((f.readline().strip())) # number of layers
-			junk = f.readline()
-			lossTangentstr = (f.readline().strip())           # loss tangent or conductivity
-			lossTangentstr = lossTangentstr.split(' ')
-			lossTangentPre = [float(i) for i in lossTangentstr]
-			junk = f.readline()
-			pulseFile = f.readline().strip()
-			junk = f.readline()
-			filterFile = f.readline().strip()
-			junk = f.readline()
-			windowNum = float((f.readline().strip()))
-			junk = f.readline()
-			windowFreqs = (f.readline().strip()) 
-			windowFreqs = windowFreqs.split(' ')
-			windowFreqs = [float(i) for i in windowFreqs]
+				junk = f.readline()
+				junk = f.readline()
+				H = float(f.readline().strip())# Spacecraft Altitude (m)
+				junk = f.readline()
+				dB_noise = float((f.readline().strip()))# What's the noise level in dB?
+				dB_noise = dB_noise-100/dB_noise# This is an approximation. Ask me for expln. 
+				junk = f.readline()
+				nl = float((f.readline().strip())) # number of layers
+				junk = f.readline()
+				depthsstr = (f.readline().strip())
+				depthsstr = depthsstr.split(' ')
+				depths = [float(i) for i in depthsstr] # Layer Thicknesses (m)
+				junk = f.readline()
+				epsrstr = (f.readline().strip())
+				epsrstr = epsrstr.split(' ')
+				epsr = [float(i) for i in epsrstr] # real relative permitivity
+				junk = f.readline()
+				useConductivity = float((f.readline().strip())) # number of layers
+				junk = f.readline()
+				lossTangentstr = (f.readline().strip())           # loss tangent or conductivity
+				lossTangentstr = lossTangentstr.split(' ')
+				lossTangentPre = [float(i) for i in lossTangentstr]
+				junk = f.readline()
+				pulseFile = f.readline().strip()
+				junk = f.readline()
+				filterFile = f.readline().strip()
+				junk = f.readline()
+				windowNum = float((f.readline().strip()))
+				junk = f.readline()
+				windowFreqs = (f.readline().strip()) 
+				windowFreqs = windowFreqs.split(' ')
+				windowFreqs = [float(i) for i in windowFreqs]
         
-			fmin = windowFreqs[0]
-			fmax = windowFreqs[1]
+				fmin = windowFreqs[0]
+				fmax = windowFreqs[1]
         
-			epsr = np.array(epsr)
-			h = np.append(h, np.array(depths))
-			eps = np.append(eps,epsr)*8.85e-12
-			lossTangent = np.append(lossTangent,np.array(lossTangentPre))
-    
-    
+				epsr = np.array(epsr)
+				h = np.append(h, np.array(depths))
+				eps = np.append(eps,epsr)*8.85e-12
+				lossTangent = np.append(lossTangent,np.array(lossTangentPre))
+   
 	def loadPulse(self,fileName):
 		'''
 		Usage:
@@ -454,12 +453,12 @@ class EMRM_simulator:
 		'''
 		out = data*mfilter
 		if self.windowNum!=0:
-			i1 = np.argmin(abs(f-self.fmin))
-			i2 = np.argmin(abs(f-self.fmax))
-			out[0:i1] = out[0:i1]*0
-			out[i1:i2] = np.kaiser(i2-i1,self.windowNum)*out[i1:i2]
-			out[i2:-1] = out[i2:-1]*0
-			out = np.fft.ifft(np.fft.ifftshift(out))*np.sqrt(len(data))
+				i1 = np.argmin(abs(f-self.fmin))
+				i2 = np.argmin(abs(f-self.fmax))
+				out[0:i1] = out[0:i1]*0
+				out[i1:i2] = np.kaiser(i2-i1,self.windowNum)*out[i1:i2]
+				out[i2:-1] = out[i2:-1]*0
+		out = np.fft.ifft(np.fft.ifftshift(out))*np.sqrt(len(data))
 		return out
 
 	def __interpFreq__(self,t2,t1,Fnew):
@@ -578,7 +577,7 @@ class EMRM_simulator:
 		axes.invert_yaxis()
 		axes.xaxis.set_label_position('top') 
 		axes.xaxis.tick_top()
+		fig.tight_layout()
 		plt.show()
-
 		b = np.transpose(np.asarray([ z,epsz]))
-    
+		return b
