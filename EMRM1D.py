@@ -250,10 +250,10 @@ class EMRM_simulator:
 		sigma0 = (self.fmax-self.fmin)*(np.max(self.t)-np.min(self.t))
 		lam = self.c/((self.fmin+self.fmax)/2)
 		Prx = sigma0*Aillum*(lam**2)/(64*(self.H**4)*np.pi**3)
-		Fnew = Fnew*np.sqrt(Prx)
+		Fnew = np.array(Fnew*np.sqrt(Prx))
     
 		if len(self.matchFilter) > 1:
-			if (self.f!= Ffreq).any():
+			if len(self.f)!=len(Ffreq) or np.array(self.f!=Ffreq).any():
 				self.t, Fnew = self.__interpFreq__(self.tmf,self.t,Fnew)
 			result = self.__rangeCompress__(Fnew,self.matchFilter,np.array(self.f))
 		else:
@@ -364,8 +364,7 @@ class EMRM_simulator:
 				h = np.append(h, np.array(depths))
 				eps = np.append(eps,epsr)*8.85e-12
 				lossTangent = np.append(lossTangent,np.array(lossTangentPre))
-    
-    
+   
 	def loadPulse(self,fileName):
 		'''
 		Usage:
@@ -580,6 +579,5 @@ class EMRM_simulator:
 		axes.xaxis.tick_top()
 		fig.tight_layout()
 		plt.show()
-
 		b = np.transpose(np.asarray([ z,epsz]))
-		return
+		return b

@@ -11,17 +11,17 @@ import sys
 ###############################################################################
 ###############################################################################
 
-fileString = "RIMFAX_Pulse_ideal"
+fileString = "SHARAD3_Pulse_ideal"
 
 ## Source Pulse Parameters
-f = (300e6-150e6)/2+150e6 #Hz
-bw = (300e6-150e6)
-pl = 1e-3
+f = 20e6 #(300e6-150e6)/2+150e6 #Hz
+bw = 10e6 #(300e6-150e6)
+pl = 85e-6 #1e-3
 A = 1.0
 tc = -f/(bw/pl)
 
 # Discretization parameters
-fs = 4*f+bw; # nyquist sampling
+fs = 45e6 #4*f+bw; # nyquist sampling
 nt = round(pl*fs)
 maxt = pl/2
 mint = -pl/2
