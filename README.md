@@ -1,5 +1,5 @@
-# EMsounder_FM_1D
-A forward modeling script for 1D electromagnetic (radar) sounders
+# RadSPy
+A Radar Sounding Simulator for Python. The program simulates 1D electromagnetic (radar) waves normally incident upon horizontally layered media.
 
 ## Quick use guide:
 
