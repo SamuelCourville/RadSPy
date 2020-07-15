@@ -18,7 +18,7 @@ import sys
 #                       Simulator class definition
 ###############################################################################
 
-class EMRM_simulator:
+class simulator_1D:
 	# Constants
 	c = 2.99792*10**8     # speed of light [m/s]
 	eps0 = 8.854188e-12   # vacuum permitivity [F/m or something like that]
