@@ -3,7 +3,7 @@ A Radar Sounding Simulator for Python. The program simulates 1D electromagnetic 
 
 ## Quick use guide:
 
-## Option A). Import radar simulator python class into code. 
+## Option A). Import RadSPy.py simulator class into code. 
 
 Simply open the jupyter notebook file demo.ipnyb and follow instructions.
 
