@@ -337,7 +337,7 @@ def dB(x):
         Last Edited: 04/03/2020
 
     '''
-    return 20*np.log10(x)
+    return 20*np.log10(np.abs(x))
 
 def writeCSVs(h, t, addTime, finalData, result, modelFile):
     '''

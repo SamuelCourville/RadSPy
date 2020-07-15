@@ -499,7 +499,7 @@ class EMRM_simulator:
 		Written by: Sam Courville
 		Last Edited: 04/03/2020
 		'''
-		return 20*np.log10(x)
+		return 20*np.log10(np.abs(x))
     
 	#######################################################################
 	#                plot function
